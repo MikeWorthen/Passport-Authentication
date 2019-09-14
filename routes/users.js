@@ -40,7 +40,8 @@ router.post('/register', (req, res) => {
             password,
             password2
         });
-    } else {
+    } 
+    else {
         // Validation passed
         User.findOne({ email: email })
         .then(user => {
@@ -62,7 +63,7 @@ router.post('/register', (req, res) => {
                 });
 
                 // Hash Password
-                bcrypt.genSalt(10, (err, salt) =>
+            bcrypt.genSalt(10, (err, salt) =>
                     bcrypt.hash(newUser.password, salt, (err, hash) => {
                         if(err) throw err;
                         // Set password to hashed
@@ -82,6 +83,45 @@ router.post('/register', (req, res) => {
             }
         });
     }
+
+    User.findOne({ name: name })
+    .then(user =>{
+    if(user) {
+        // User exists
+        errors.push({ msg: 'Name is already registered'});
+        res.render('register', {
+            errors,
+            name,
+            email,
+            password,
+            password2
+        });
+    } else {
+        const newUser = new User({
+            name,
+            email,
+            password
+        });
+          // Hash Password
+          bcrypt.genSalt(10, (err, salt) =>
+          bcrypt.hash(newUser.password, salt, (err, hash) => {
+              if(err) throw err;
+              // Set password to hashed
+              newUser.password = hash;
+              // Save user
+              newUser.save()
+                  .then(user => {
+                      req.flash('success_msg', 'You are now registered and can log in');
+                      res.redirect('/users/login');
+                  })
+                  .catch(err => console.log(err));
+              
+
+      }))
+      console.log(newUser)
+
+  }
+});
 });
 
 // Login Handle

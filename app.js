@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const flash = require('connect-flash');
 const session = require('express-session');
 const passport = require('passport');
+// const morgan = require('morgan');
 
 const app = express();
 
@@ -11,12 +12,15 @@ const app = express();
 require('./config/passport')(passport);
 
 // DB Config
-const db = require('./config/keys').MongoURI;
+var db = process.env.MONGODB_URI || "mongodb://localhost/pass-auth";
 
 // Connect to Mongo
 mongoose.connect(db, { useNewUrlParser: true })
     .then(() => console.log('MongoDB Connected...'))
     .catch(err => console.log(err));
+
+// Connect to Morgan
+// app.use(morgan('dev')),
 
 // EJS
 app.use(expressLayouts);
@@ -52,6 +56,9 @@ app.use('/', require('./routes/index'));
 app.use('/users', require('./routes/users'));
 
 const PORT = process.env.PORT || 5000;
+
+
+
 
 
 app.listen(PORT, console.log("http://localhost:" + PORT,));
